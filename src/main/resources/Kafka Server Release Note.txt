@@ -1,0 +1,11 @@
+1. Kafka docker
+see instruction: https://www.conduktor.io/kafka/how-to-start-kafka-using-docker/
+
+the local files:
+C:\Users\jianm\Documents\workspace-spring-tool-suite-4-4.14.1.RELEASE\kafka-stack-docker-compose
+
+the run command:
+docker-compose -f zk-single-kafka-single.yml up -d
+
+2. ui-Kafka
+
