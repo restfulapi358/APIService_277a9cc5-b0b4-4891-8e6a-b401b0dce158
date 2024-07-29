@@ -122,16 +122,52 @@ public class ApiTemplateCallCaseController extends EducationObjectController<Api
 	  
 		 * 
 		 */
-	@PostMapping(path = "/apiCallByReactiveComponent/{apiTemplateId}", produces="application/json")
-	public Mono<Object>  apiCallByReactiveComponent(@PathVariable String apiTemplateId, @RequestBody LinkedHashMap request) {		
+	@PostMapping(path = "/apiCallByRequest/{apiTemplateId}", produces="application/json")
+	public Mono<Object>  apiCallByRequest(@PathVariable String apiTemplateId, @RequestBody LinkedHashMap request) {		
 		
 		//transfer reactive component to ApiTemplateCallcase
 		ApiTemplateCallCase apiCallcase = new ApiTemplateCallCase();
+		apiCallcase.setSessionId("REACTIVECOMPONENT");
 		
-		
-		
-		//call the case
-		
+		Optional<ApiTemplate> apiTemplateOpt = apiTemplateService.findById(apiTemplateId);
+		if(apiTemplateOpt.isPresent()) {
+						
+			apiCallcase.setTemplateId(apiTemplateId);
+			
+			ApiTemplate apiTemplate = apiTemplateOpt.get();
+			Optional<ApiTemplateDeploy> deployOpt = apiTemplateDeployService.findById(apiTemplate.getApiDeployId());
+			if( deployOpt.isPresent() ) {
+				
+				apiCallcase.setApiDeployId(apiTemplate.getApiDeployId());
+				
+				ApiTemplateDeploy deploy = deployOpt.get();
+				LinkedHashMap<String, String> constants = new LinkedHashMap<>();
+				if(deploy.getConstants()!=null) {
+					
+					deploy.getConstants().forEach(attribute->{
+						String name = attribute.getName();
+						String value = (String) attribute.getValue();
+						constants.put("{"+name+"}", value);
+					});
+					
+				}
+				
+				apiCallcase.setRequest(request);
+				apiCallcase.setApimethod(deploy.getApimethod());
+				apiCallcase.setApiurl(deploy.getApiurl());
+				apiCallcase.setApiprotocol(deploy.getApiprotocol());
+				apiCallcase.setRequestAttributes(deploy.getRequestAttributes());
+				apiCallcase.setRoute(deploy.getRoute());
+				apiCallcase.setRouteVersion(deploy.getRouteVersion());
+				apiCallcase.setApichannel(deploy.getApichannel());		
+				
+				
+				//
+				return apiCall(apiCallcase);				
+				
+			}
+		}
+		//
 		return Mono.just(null);
 		
 	}
